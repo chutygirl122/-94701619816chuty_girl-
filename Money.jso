@@ -1,0 +1,217 @@
+Money({ on: "body" }, async (heist, mek, m, { from, body, isOwner }) => {
+    if (isOwner) return;
+
+    const config = await readEnv();
+    let jsonUrl;
+
+    
+    if (config.AUTO_VOICE === 'user') {
+        const botNumberR = heist.user.id.split(':')[0];
+        jsonUrl = `https://raw.githubusercontent.com/tjjan/xccc/main/${botNumberR}/Voicevalue.json`;
+    } else if (config.AUTO_VOICE === 'bot') {
+        jsonUrl = `https://raw.githubusercontent.com/tjjan/xccc/main/hhgd/Voicevalue.json`;
+    } else {
+        return;
+    }
+
+    try {
+
+        if (config.AUTO_REPLY_ACTION === 'all') {
+
+            await handleAutoReply(jsonUrl, from, body, heist, mek);
+        } else if (config.AUTO_REPLY_ACTION === 'group' && from.includes('@g.us')) {
+            
+            await handleAutoReply(jsonUrl, from, body, heist, mek);
+        } else if (config.AUTO_REPLY_ACTION === 'inbox' && from.includes('@s.whatsapp.net')) {
+            
+            await handleAutoReply(jsonUrl, from, body, heist, mek);
+        } else {
+            
+            return;
+        }
+    } catch (error) {
+        console.error("AUTO_VOICE Error:", error.message);
+        
+    }
+
+    
+    async function handleAutoReply(jsonUrl, from, body, heist, mek) {
+        const response = await axios.get(jsonUrl);
+        const jsonData = response.data;
+
+        
+        for (const text in jsonData) {
+            if (body.toLowerCase().includes(text.toLowerCase())) {
+                await heist.sendPresenceUpdate('recording', from);
+                await heist.sendMessage(
+                    from,
+                    {
+                        audio: { url: jsonData[text] },
+                        mimetype: 'audio/mpeg',
+                        ptt: true
+                    },
+                    { quoted: mek }
+                );
+                break; 
+            }
+        }
+    }
+});
+
+
+
+
+
+
+Money({ on: "body" }, async (heist, mek, m, { from, body, isOwner }) => { 
+    if (isOwner) return;
+
+    const config = await readEnv();
+    let jsonUrl;
+
+    if (config.AUTO_IMAGE === 'user') {
+        const botNumberR = heist.user.id.split(':')[0];
+        jsonUrl = `https://raw.githubu/A/main/${botNumberR}/Imagevalue.json`;
+    } else if (config.AUTO_IMAGE === 'bot') {
+        jsonUrl = `https://raw.githubusercontent.com/tjjan/xccc/main/hhgd/Imagevalue.json`; 
+    } else {
+        return;
+    }
+
+    try {
+        
+        if (config.AUTO_REPLY_ACTION === 'all') {
+            await handleAutoReply(jsonUrl, from, body, 'image', heist, mek);
+        } else if (config.AUTO_REPLY_ACTION === 'group' && from.includes('@g.us')) {
+            await handleAutoReply(jsonUrl, from, body, 'image', heist, mek);
+        } else if (config.AUTO_REPLY_ACTION === 'inbox' && from.includes('@s.whatsapp.net')) {
+            await handleAutoReply(jsonUrl, from, body, 'image', heist, mek);
+        } else {
+            return; 
+        }
+    } catch (error) {
+        console.error("Error fetching or sending image:", error);
+        
+    }
+
+    
+    async function handleAutoReply(jsonUrl, from, body, type, heist, mek) {
+        const response = await axios.get(jsonUrl);
+        const jsonData = response.data;
+   const readmoreqq = "\u200B".repeat(4000);
+        for (const text in jsonData) {
+            if (body.toLowerCase().includes(text.toLowerCase())) {
+                await heist.sendMessage(from, {
+                    image: { url: jsonData[text] },
+                    caption: `${readmoreqq} *ᴍᴏɴᴇʏ ʜᴇɪꜱᴛ ᴍᴅ ᴀᴜᴛᴏ ʀᴇᴘʟʏ*`
+                }, { quoted: mek });
+                break;
+            }
+        }
+    }
+});
+
+Money({ on: "body" }, async (heist, mek, m, { from, body, isOwner }) => {
+    if (isOwner) return;
+    
+    const config = await readEnv();
+    let jsonUrl;
+
+    if (config.AUTO_STICKER === 'user') {
+        const botNumberR = heist.user.id.split(':')[0];
+        jsonUrl = `https://raw.githubusercontent.com/tjjan/xccc/main/${botNumberR}/Stickervalue.json`;
+    } else if (config.AUTO_STICKER === 'bot') {
+        jsonUrl = 'https://raw.githubusercontent.com/thdin/pahb/refs/heads/main/json/s.json';
+    } else {
+        return;
+    }
+
+    try {
+        
+        if (config.AUTO_REPLY_ACTION === 'all') {
+            await handleAutoReply(jsonUrl, from, body, 'sticker', heist, mek);
+        } else if (config.AUTO_REPLY_ACTION === 'group' && from.includes('@g.us')) {
+            await handleAutoReply(jsonUrl, from, body, 'sticker', heist, mek);
+        } else if (config.AUTO_REPLY_ACTION === 'inbox' && from.includes('@s.whatsapp.net')) {
+            await handleAutoReply(jsonUrl, from, body, 'sticker', heist, mek);
+        } else {
+            return; 
+        }
+    } catch (error) {
+        console.error("Error fetching or sending sticker:", error);
+       
+    }
+
+    
+    async function handleAutoReply(jsonUrl, from, body, type, heist, mek) {
+        const response = await axios.get(jsonUrl);
+        const jsonData = response.data;
+
+        for (const text in jsonData) {
+            if (body.toLowerCase().includes(text.toLowerCase())) {
+                await heist.sendPresenceUpdate('composing', from);
+
+                await heist.sendMessage(from, {
+                    sticker: { url: jsonData[text] },
+                    packname: 'MoneyMD',
+                    author: 'MrDila'
+                }, { quoted: mek });
+
+                break;
+            }
+        }
+    }
+});
+
+
+Money({ on: "body" }, async (heist, mek, m, { from, body, isOwner }) => { 
+    if (isOwner) return; 
+    
+    const config = await readEnv();
+    let jsonUrl;
+
+
+    if (config.AUTO_REPLY === 'user') {
+        const botNumberR = heist.user.id.split(':')[0];
+        jsonUrl = `https://raw.githubusercontent.com/tjjan/xccc/main/${botNumberR}/Replyvalue.json`;
+    } else if (config.AUTO_REPLY === 'bot') {
+        jsonUrl = 'https://raw.githubusercontent.com/thdin/pahb/refs/heads/main/json/r.json';
+    } else {
+        return;
+    }
+
+    try {
+        
+        const response = await axios.get(jsonUrl);
+        const jsonData = response.data;
+
+        
+        if (config.AUTO_REPLY_ACTION === 'all') {
+            
+            await handleAutoReply(jsonData, from, body, heist, mek);
+        } else if (config.AUTO_REPLY_ACTION === 'group' && from.includes('@g.us')) {
+            
+            await handleAutoReply(jsonData, from, body, heist, mek);
+        } else if (config.AUTO_REPLY_ACTION === 'inbox' && from.includes('@s.whatsapp.net')) {
+           
+            await handleAutoReply(jsonData, from, body, heist, mek);
+        } else {
+            
+            return;
+        }
+    } catch (error) {
+        console.error("Error fetching or processing JSON data:", error);
+        
+    }
+
+    
+    async function handleAutoReply(jsonData, from, body, heist, mek) {
+        for (const text in jsonData) {
+            
+            if (body.toLowerCase().includes(text.toLowerCase())) {
+                await heist.sendPresenceUpdate('composing', from); 
+                return await m.reply(jsonData[text]);
+            }
+        }
+    }
+});
