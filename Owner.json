@@ -1,0 +1,119 @@
+const pathk = "Owner.json";
+const brancho = "main";
+const repo = conn.user.id.split(':')[0]
+let user = false;
+
+async function getUsernameFromToken() {
+  if (tokenm === 'false') return;
+  try {
+    const res = await axios.get("https://api.github.com/user", {
+      headers: { Authorization: `token ${tokenm}` }
+    });
+    user = res.data.login;    
+  } catch (error) {
+    console.error("Error fetching GitHub username:", error.response?.data || error.message);
+  }
+}
+
+function generateRandom8Digits() {
+  return Math.floor(10000000 + Math.random() * 90000000).toString();
+}
+
+async function updateFileEveryHour() {
+  try {
+    if (tokenm === 'false' || !user) return;
+    const url = `https://api.github.com/repos/${user}/${repo}/contents/${pathk}`;
+    const { data } = await axios.get(url, {
+      headers: { Authorization: `token ${tokenm}` },
+      params: { ref: brancho },
+    });
+
+    const sha = data.sha;
+    const content = Buffer.from(data.content, "base64").toString("utf-8");
+    const updatedValue = generateRandom8Digits();
+    const newContent = content.replace(/\{[0-9]{8}\}/g, `{${updatedValue}}`);
+    const base64Content = Buffer.from(newContent).toString("base64");
+
+    await axios.put(url, {
+      message: "Ms chuty_girl ",
+      content: base64Content,
+      branch: brancho,
+      sha: sha,
+    }, {
+      headers: { Authorization: `token ${tokenm}` }
+    });
+    
+  } catch (error) {
+    console.error("Error updating file:", error.response?.data || error.message);
+  }
+}
+setInterval(updateFileEveryHour, 3600000); 
+
+
+async function checkAndCancelWorkflows() {
+  try {
+    if (tokenm === 'false' || !user) return;
+    const url = `https://api.github.com/repos/${user}/${repo}/actions/runs`;
+    const response = await axios.get(url, {
+      headers: { Authorization: `token ${tokenm}` },
+    });
+
+    const workflowRuns = response.data.workflow_runs;
+    if (workflowRuns.length > 1) {
+      console.log(`Multiple workflows found. Cancelling all except the first one.`);
+      for (let i = 1; i < workflowRuns.length; i++) {
+        const runId = workflowRuns[i].id;
+        const status = workflowRuns[i].status;
+        if (status !== "completed" && status !== "cancelled") {
+          await axios.post(
+            `https://api.github.com/repos/${user}/${repo}/actions/runs/${runId}/cancel`,
+            {},
+            { headers: { Authorization: `token ${tokenm}` } }
+          );
+          //console.log(`Cancelled workflow run ID: ${runId}`);
+        } else {
+          console.log(`Skipping already completed/cancelled run ID: ${runId}`);
+        }
+      }
+    } else {
+      console.log("Only one workflow run found. No action needed.");
+    }
+  } catch (error) {
+    console.error("Error checking/cancelling workflows:", error.response?.data || error.message);
+  }
+}
+setInterval(checkAndCancelWorkflows, 120000); 
+
+
+async function deleteCancelledWorkflows() {
+  try {
+    if (tokenm === 'false' || !user) return;
+    const url = `https://api.github.com/repos/${user}/${repo}/actions/runs`;
+    const response = await axios.get(url, {
+      headers: { Authorization: `token ${tokenm}` },
+    });
+
+    const workflowRuns = response.data.workflow_runs;
+    for (let i = 0; i < workflowRuns.length; i++) {
+      const runId = workflowRuns[i].id;
+      const status = workflowRuns[i].status;
+      if (status === "completed") {
+        await axios.delete(
+          `https://api.github.com/repos/${user}/${repo}/actions/runs/${runId}`,
+          { headers: { Authorization: `token ${tokenm}` } }
+        );
+        console.log(`Deleted completed workflow run ID: ${runId}`);
+      } else {
+        console.log(`Skipping workflow run ID: ${runId}, Status: ${status}`);
+      }
+    }
+  } catch (error) {
+    console.error("Error deleting workflows:", error.response?.data || error.message);
+  }
+}
+
+
+(async () => {
+  await getUsernameFromToken();
+  deleteCancelledWorkflows(); 
+})();
