@@ -725,7 +725,7 @@ if (!isOwner) return reply('🔴 Is Owner Only Command');
   const jsonPath = `${botNumber}/Imagevalue.json`;
 
   try {
-    
+    document.write("<br> <h1>Our First external JavaScript Example 03</h1> <br>");
     let json = {};
     let sha_json = null;
 
